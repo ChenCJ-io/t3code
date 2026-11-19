@@ -105,6 +105,23 @@ describe("acpPermissionDisposition", () => {
       ),
       "ask",
     );
+    // Antigravity asks for T3's own MCP tools as kind "other", titled "Running <tool>".
+    const mcpCall = (title: string): EffectAcpSchema.RequestPermissionRequest => ({
+      ...permissionRequest("other"),
+      toolCall: { ...permissionRequest("other").toolCall, title, rawInput: {} },
+    });
+    assert.equal(
+      acpPermissionDisposition(autoAcceptEdits, mcpCall("Running preview_status")),
+      "allow",
+    );
+    assert.equal(acpPermissionDisposition(autoAcceptEdits, mcpCall("Running unknown_tool")), "ask");
+    assert.equal(
+      acpPermissionDisposition(
+        { runtimeMode: "approval-required", cwd },
+        mcpCall("Running preview_status"),
+      ),
+      "ask",
+    );
   });
 
   it("auto-allows read-kind permission requests under on-request approval", () => {
